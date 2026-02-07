@@ -12,6 +12,7 @@
  * - /users/{userId}: Contains all private user data, including profiles,
  *   transactions, portfolios, and investment recommendations. Access is
  *   strictly limited to the authenticated owner of the data.
+ * - /newsArticles/{newsArticleId}: Publicly readable news articles.
  * - /shares/{shareId}: A top-level collection for public share information.
  *   This data is readable by anyone but can only be modified by admins.
  * - /roles_admin/{userId}: A special collection to manage administrator
@@ -23,12 +24,10 @@
  *   only by the user whose UID matches {userId}.
  * - No User Listing: To protect user privacy, it is not possible to list all
  *   documents in the top-level /users collection.
- * - Public Data Segregation: Publicly readable data (shares) is stored in a
- *   separate top-level collection to allow for safe and performant list
- *   queries without compromising user data.
+ * - Public Data Segregation: Publicly readable data (shares, news) is stored in
+ *   separate top-level collections for safe and performant list queries.
  * - Admin Role Management: Admin status is determined by document existence in
- *   the /roles_admin collection. This provides a simple, performant, and
- *   secure way to check for elevated permissions.
+ *   the /roles_admin collection for simple and secure permission checks.
  *
  * Denormalization for Authorization:
  * This ruleset relies on path-based ownership (/users/{userId}) and existence-based
@@ -138,21 +137,6 @@ service cloud.firestore {
       allow delete: if isExistingOwner(userId);
 
       /**
-       * @description Manages news articles created by a specific user.
-       * @path /users/{userId}/newsArticles/{newsArticleId}
-       * @allow (create) The owner creating a news article in their own subcollection.
-       * @deny (update) A user trying to update another user's news article.
-       * @principle Enforces document ownership within a user's private subcollection.
-       */
-      match /newsArticles/{newsArticleId} {
-        allow get: if isOwner(userId);
-        allow list: if isOwner(userId);
-        allow create: if isOwner(userId) && hasCorrectAuthorIdOnCreate(userId);
-        allow update: if isExistingOwner(userId) && isAuthorIdImmutable();
-        allow delete: if isExistingOwner(userId);
-      }
-
-      /**
        * @description Manages a user's private transaction history.
        * @path /users/{userId}/transactions/{transactionId}
        * @allow (get) The owner reading their own transaction document.
@@ -196,6 +180,20 @@ service cloud.firestore {
         allow update: if isExistingOwner(userId) && isUserIdImmutable();
         allow delete: if isExistingOwner(userId);
       }
+    }
+
+    /**
+     * @description Manages publicly readable news articles.
+     * @path /newsArticles/{newsArticleId}
+     * @allow (get, list) Any user, authenticated or not.
+     * @deny (write) A regular user attempting to create/modify/delete an article.
+     * @principle Segregates public data, allowing global reads while restricting writes to admins.
+     */
+    match /newsArticles/{newsArticleId} {
+        allow get, list: if true;
+        allow create: if isAdmin();
+        allow update: if isAdmin() && resource != null;
+        allow delete: if isAdmin() && resource != null;
     }
 
     /**

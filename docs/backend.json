@@ -63,6 +63,10 @@
         "authorId": {
           "type": "string",
           "description": "Reference to the User who authored the article. (Relationship: User 1:N NewsArticle)"
+        },
+        "category": {
+          "type": "string",
+          "description": "The category of the news article (e.g., Market, Technology)."
         }
       },
       "required": [
@@ -70,7 +74,8 @@
         "title",
         "content",
         "publicationDate",
-        "authorId"
+        "authorId",
+        "category"
       ]
     },
     "Share": {
@@ -247,18 +252,14 @@
         }
       },
       {
-        "path": "/users/{userId}/newsArticles/{newsArticleId}",
+        "path": "/newsArticles/{newsArticleId}",
         "definition": {
           "entityName": "NewsArticle",
           "schema": {
             "$ref": "#/backend/entities/NewsArticle"
           },
-          "description": "Stores news articles created by specific users.",
+          "description": "Stores news articles. Globally readable, admin writable.",
           "params": [
-            {
-              "name": "userId",
-              "description": "The unique ID of the user."
-            },
             {
               "name": "newsArticleId",
               "description": "The unique ID of the news article."
@@ -359,6 +360,6 @@
         }
       }
     ],
-    "reasoning": "The Firestore data structure is designed to support the GrowShare Capital platform, emphasizing security, scalability, and ease of debugging. It leverages denormalization and structural segregation to achieve authorization independence, simplifying security rules and enhancing performance. The structure adheres to the principle of homogeneous security posture, ensuring that all documents within a collection share the same security requirements. Path-based ownership is employed where appropriate (e.g., user-owned data), and membership maps are used for collaborative data access. This structure avoids hierarchical authorization dependencies (`get()` calls in rules) and facilitates secure `list` operations (QAPs). Specifically:\n\n*   **Users:** Stored in `/users/{userId}`, allowing for path-based ownership and straightforward security rules based on `request.auth.uid`.\n*   **NewsArticles:** Stored in `/users/{userId}/newsArticles/{newsArticleId}` to allow only authors to make changes.\n*   **Shares:** Stored in `/shares/{shareId}`, a top-level collection with global read access but restricted write access (e.g., only admins can create/update).  This supports QAPs as listing shares doesn't require filtering based on user roles, improving performance and security rule simplicity.\n*   **Transactions:** Stored in `/users/{userId}/transactions/{transactionId}`, ensuring only a user can manage their own transactions.\n*   **InvestmentRecommendations:** Stored in `/users/{userId}/investmentRecommendations/{investmentRecommendationId}`, which ensures that only a user can view/manage their own investment recommendations.\n*   **Portfolios:** Stored in `/users/{userId}/portfolios/{portfolioId}`, owned by the user.\n*   **Roles:**  Admin roles are managed via existence checks in `/roles_admin/{userId}`.  This is existence-based, simplifying role management and rule logic."
+    "reasoning": "The Firestore data structure is designed to support the GrowShare Capital platform, emphasizing security, scalability, and ease of debugging. It leverages denormalization and structural segregation to achieve authorization independence, simplifying security rules and enhancing performance. The structure adheres to the principle of homogeneous security posture, ensuring that all documents within a collection share the same security requirements. Path-based ownership is employed where appropriate (e.g., user-owned data), and membership maps are used for collaborative data access. This structure avoids hierarchical authorization dependencies (`get()` calls in rules) and facilitates secure `list` operations (QAPs). Specifically:\n\n*   **Users:** Stored in `/users/{userId}`, allowing for path-based ownership and straightforward security rules based on `request.auth.uid`.\n*   **NewsArticles:** Stored in `/newsArticles/{newsArticleId}` as a top-level collection to allow public read access for the newsroom, with write access restricted to administrators.\n*   **Shares:** Stored in `/shares/{shareId}`, a top-level collection with global read access but restricted write access (e.g., only admins can create/update).  This supports QAPs as listing shares doesn't require filtering based on user roles, improving performance and security rule simplicity.\n*   **Transactions:** Stored in `/users/{userId}/transactions/{transactionId}`, ensuring only a user can manage their own transactions.\n*   **InvestmentRecommendations:** Stored in `/users/{userId}/investmentRecommendations/{investmentRecommendationId}`, which ensures that only a user can view/manage their own investment recommendations.\n*   **Portfolios:** Stored in `/users/{userId}/portfolios/{portfolioId}`, owned by the user.\n*   **Roles:**  Admin roles are managed via existence checks in `/roles_admin/{userId}`.  This is existence-based, simplifying role management and rule logic."
   }
 }
