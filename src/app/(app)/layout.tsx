@@ -3,7 +3,6 @@
 import {
   Sidebar,
   SidebarContent,
-  SidebarHeader,
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
@@ -13,7 +12,6 @@ import {
 } from "@/components/ui/sidebar"
 import { usePathname } from 'next/navigation'
 import Link from 'next/link';
-import { Logo } from "@/components/logo";
 import { Header } from "@/components/header";
 import { 
     ArrowRightLeft, Briefcase, BrainCircuit, Building, LandPlot, LayoutDashboard, 
@@ -54,18 +52,10 @@ export default function AppLayout({
 }) {
   const pathname = usePathname();
 
-  const getPageTitle = () => {
-    const allNavItems = [...navItems, ...sectorNavItems.items, ...footerNavItems];
-    return allNavItems.find(item => pathname.startsWith(item.href))?.label || 'GrowShare';
-  }
-
   return (
       <div className="flex min-h-screen w-full flex-col">
         <Sidebar>
-            <SidebarHeader>
-                <Logo />
-            </SidebarHeader>
-            <SidebarContent>
+            <SidebarContent className="mt-14">
                 <SidebarMenu>
                     {navItems.map((item) => (
                         <SidebarMenuItem key={item.href}>
@@ -147,7 +137,7 @@ export default function AppLayout({
             </SidebarFooter>
         </Sidebar>
         <SidebarInset>
-            <Header title={getPageTitle()} />
+            <Header />
             <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6 bg-background">
                 {children}
             </main>

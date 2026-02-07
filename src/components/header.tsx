@@ -4,18 +4,15 @@ import {
 import { Search } from "lucide-react";
 import { Input } from "./ui/input";
 import { UserNav } from "./user-nav";
+import { Logo } from "./logo";
 
 
-type HeaderProps = {
-    title: string;
-}
-
-export function Header({ title }: HeaderProps) {
+export function Header() {
   return (
-    <header className="flex h-14 items-center gap-4 border-b bg-card px-4 lg:h-[60px] lg:px-6">
+    <header className="flex h-14 items-center gap-4 border-b bg-card px-4 lg:h-[60px] lg:px-6 fixed top-0 right-0 left-0 z-20 md:left-[var(--sidebar-width-icon)] lg:left-[var(--sidebar-width)] group-data-[collapsible=icon]:lg:left-[var(--sidebar-width-icon)] transition-[left] duration-200">
       <SidebarTrigger className="shrink-0 md:hidden" />
       <div className="w-full flex-1">
-        <h1 className="font-headline text-lg font-semibold md:text-2xl">{title}</h1>
+        <Logo />
       </div>
       <div className="w-full flex-1">
         <form>
