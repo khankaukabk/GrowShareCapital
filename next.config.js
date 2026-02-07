@@ -28,7 +28,6 @@ const securityHeaders = [
 ];
 
 const nextConfig = {
-  turbopack: {},
   typescript: {
     ignoreBuildErrors: true,
   },
