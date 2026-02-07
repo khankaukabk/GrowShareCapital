@@ -13,7 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { user } from "@/lib/data";
-import { LogOut, Settings, User as UserIcon } from "lucide-react";
+import { LogOut, User as UserIcon } from "lucide-react";
 
 export function UserNav() {
   return (
@@ -40,10 +40,6 @@ export function UserNav() {
           <DropdownMenuItem>
             <UserIcon />
             <span>Profile</span>
-          </DropdownMenuItem>
-          <DropdownMenuItem>
-            <Settings />
-            <span>Settings</span>
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
