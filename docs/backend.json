@@ -1,0 +1,364 @@
+{
+  "entities": {
+    "User": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "User",
+      "type": "object",
+      "description": "Represents a user of the GrowShare Capital platform.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the user."
+        },
+        "firstName": {
+          "type": "string",
+          "description": "First name of the user."
+        },
+        "lastName": {
+          "type": "string",
+          "description": "Last name of the user."
+        },
+        "email": {
+          "type": "string",
+          "description": "Email address of the user.",
+          "format": "email"
+        },
+        "registrationDate": {
+          "type": "string",
+          "description": "Date and time the user registered.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "firstName",
+        "lastName",
+        "email",
+        "registrationDate"
+      ]
+    },
+    "NewsArticle": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "NewsArticle",
+      "type": "object",
+      "description": "Represents a news article or company update.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the news article."
+        },
+        "title": {
+          "type": "string",
+          "description": "Title of the news article."
+        },
+        "content": {
+          "type": "string",
+          "description": "Content of the news article."
+        },
+        "publicationDate": {
+          "type": "string",
+          "description": "Date and time the news article was published.",
+          "format": "date-time"
+        },
+        "authorId": {
+          "type": "string",
+          "description": "Reference to the User who authored the article. (Relationship: User 1:N NewsArticle)"
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "content",
+        "publicationDate",
+        "authorId"
+      ]
+    },
+    "Share": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Share",
+      "type": "object",
+      "description": "Represents a share available for trading.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the share."
+        },
+        "companyName": {
+          "type": "string",
+          "description": "Name of the company the share represents."
+        },
+        "tickerSymbol": {
+          "type": "string",
+          "description": "Ticker symbol of the share."
+        },
+        "currentPrice": {
+          "type": "number",
+          "description": "Current price of the share."
+        }
+      },
+      "required": [
+        "id",
+        "companyName",
+        "tickerSymbol",
+        "currentPrice"
+      ]
+    },
+    "Transaction": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Transaction",
+      "type": "object",
+      "description": "Represents a transaction (buy or sell) of shares.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the transaction."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the User who performed the transaction. (Relationship: User 1:N Transaction)"
+        },
+        "shareId": {
+          "type": "string",
+          "description": "Reference to the Share that was traded. (Relationship: Share 1:N Transaction)"
+        },
+        "transactionType": {
+          "type": "string",
+          "description": "Type of transaction (buy or sell)."
+        },
+        "quantity": {
+          "type": "number",
+          "description": "Number of shares transacted."
+        },
+        "pricePerShare": {
+          "type": "number",
+          "description": "Price per share at the time of the transaction."
+        },
+        "transactionDate": {
+          "type": "string",
+          "description": "Date and time of the transaction.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "shareId",
+        "transactionType",
+        "quantity",
+        "pricePerShare",
+        "transactionDate"
+      ]
+    },
+    "InvestmentRecommendation": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "InvestmentRecommendation",
+      "type": "object",
+      "description": "Represents an AI-powered investment recommendation for a user.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the recommendation."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the User who received the recommendation. (Relationship: User 1:N InvestmentRecommendation)"
+        },
+        "shareId": {
+          "type": "string",
+          "description": "Reference to the Share being recommended. (Relationship: Share 1:N InvestmentRecommendation)"
+        },
+        "recommendationDate": {
+          "type": "string",
+          "description": "Date and time the recommendation was generated.",
+          "format": "date-time"
+        },
+        "confidenceScore": {
+          "type": "number",
+          "description": "Confidence score of the AI for this recommendation (e.g., 0 to 1)."
+        },
+        "rationale": {
+          "type": "string",
+          "description": "Rationale behind the investment recommendation."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "shareId",
+        "recommendationDate",
+        "confidenceScore",
+        "rationale"
+      ]
+    },
+    "Portfolio": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Portfolio",
+      "type": "object",
+      "description": "Represents a user's investment portfolio.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the portfolio."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the User who owns the portfolio. (Relationship: User 1:1 Portfolio)"
+        },
+        "shareIds": {
+          "type": "array",
+          "description": "List of share IDs in the portfolio. (Relationship: Portfolio 1:N Share)",
+          "items": {
+            "type": "string"
+          }
+        },
+        "quantity": {
+          "type": "number",
+          "description": "Quantity of a share in the portfolio"
+        }
+      },
+      "required": [
+        "id",
+        "userId"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "User",
+          "schema": {
+            "$ref": "#/backend/entities/User"
+          },
+          "description": "Stores user profiles. Path-based ownership enforced via security rules.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique ID of the user."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/newsArticles/{newsArticleId}",
+        "definition": {
+          "entityName": "NewsArticle",
+          "schema": {
+            "$ref": "#/backend/entities/NewsArticle"
+          },
+          "description": "Stores news articles created by specific users.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique ID of the user."
+            },
+            {
+              "name": "newsArticleId",
+              "description": "The unique ID of the news article."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/shares/{shareId}",
+        "definition": {
+          "entityName": "Share",
+          "schema": {
+            "$ref": "#/backend/entities/Share"
+          },
+          "description": "Stores share information. Globally readable, but write access is restricted to admins. Supports QAPs.",
+          "params": [
+            {
+              "name": "shareId",
+              "description": "The unique ID of the share."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/transactions/{transactionId}",
+        "definition": {
+          "entityName": "Transaction",
+          "schema": {
+            "$ref": "#/backend/entities/Transaction"
+          },
+          "description": "Stores transaction data for each user.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique ID of the user."
+            },
+            {
+              "name": "transactionId",
+              "description": "The unique ID of the transaction."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/investmentRecommendations/{investmentRecommendationId}",
+        "definition": {
+          "entityName": "InvestmentRecommendation",
+          "schema": {
+            "$ref": "#/backend/entities/InvestmentRecommendation"
+          },
+          "description": "Stores investment recommendations tailored to each user.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique ID of the user."
+            },
+            {
+              "name": "investmentRecommendationId",
+              "description": "The unique ID of the investment recommendation."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/portfolios/{portfolioId}",
+        "definition": {
+          "entityName": "Portfolio",
+          "schema": {
+            "$ref": "#/backend/entities/Portfolio"
+          },
+          "description": "Stores user portfolio data.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique ID of the user."
+            },
+            {
+              "name": "portfolioId",
+              "description": "The unique ID of the portfolio."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/roles_admin/{userId}",
+        "definition": {
+          "entityName": "adminRole",
+          "schema": {
+            "$ref": "#/backend/entities/User"
+          },
+          "description": "Collection used to store admin roles. Existence of document indicates admin status. No content required. Simplifies rule logic. Supports QAPs via existence checks.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique ID of the user."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore data structure is designed to support the GrowShare Capital platform, emphasizing security, scalability, and ease of debugging. It leverages denormalization and structural segregation to achieve authorization independence, simplifying security rules and enhancing performance. The structure adheres to the principle of homogeneous security posture, ensuring that all documents within a collection share the same security requirements. Path-based ownership is employed where appropriate (e.g., user-owned data), and membership maps are used for collaborative data access. This structure avoids hierarchical authorization dependencies (`get()` calls in rules) and facilitates secure `list` operations (QAPs). Specifically:\n\n*   **Users:** Stored in `/users/{userId}`, allowing for path-based ownership and straightforward security rules based on `request.auth.uid`.\n*   **NewsArticles:** Stored in `/users/{userId}/newsArticles/{newsArticleId}` to allow only authors to make changes.\n*   **Shares:** Stored in `/shares/{shareId}`, a top-level collection with global read access but restricted write access (e.g., only admins can create/update).  This supports QAPs as listing shares doesn't require filtering based on user roles, improving performance and security rule simplicity.\n*   **Transactions:** Stored in `/users/{userId}/transactions/{transactionId}`, ensuring only a user can manage their own transactions.\n*   **InvestmentRecommendations:** Stored in `/users/{userId}/investmentRecommendations/{investmentRecommendationId}`, which ensures that only a user can view/manage their own investment recommendations.\n*   **Portfolios:** Stored in `/users/{userId}/portfolios/{portfolioId}`, owned by the user.\n*   **Roles:**  Admin roles are managed via existence checks in `/roles_admin/{userId}`.  This is existence-based, simplifying role management and rule logic."
+  }
+}

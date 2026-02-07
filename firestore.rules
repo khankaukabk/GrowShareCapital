@@ -1,0 +1,231 @@
+/**
+ * This ruleset enforces a security model for the GrowShare Capital platform,
+ * prioritizing user data privacy while allowing for public market data and
+ * administrative oversight.
+ *
+ * Core Philosophy:
+ * The security model is primarily user-centric, where users have complete
+ * control over their own data. A special 'admin' role exists for managing
+ * platform-wide data, such as share information.
+ *
+ * Data Structure:
+ * - /users/{userId}: Contains all private user data, including profiles,
+ *   transactions, portfolios, and investment recommendations. Access is
+ *   strictly limited to the authenticated owner of the data.
+ * - /shares/{shareId}: A top-level collection for public share information.
+ *   This data is readable by anyone but can only be modified by admins.
+ * - /roles_admin/{userId}: A special collection to manage administrator
+ *   privileges. A user is an admin if a document with their UID exists in this
+ *   collection. This collection is not client-writable.
+ *
+ * Key Security Decisions:
+ * - Strict Ownership: All subcollections under /users/{userId} are accessible
+ *   only by the user whose UID matches {userId}.
+ * - No User Listing: To protect user privacy, it is not possible to list all
+ *   documents in the top-level /users collection.
+ * - Public Data Segregation: Publicly readable data (shares) is stored in a
+ *   separate top-level collection to allow for safe and performant list
+ *   queries without compromising user data.
+ * - Admin Role Management: Admin status is determined by document existence in
+ *   the /roles_admin collection. This provides a simple, performant, and
+ *   secure way to check for elevated permissions.
+ *
+ * Denormalization for Authorization:
+ * This ruleset relies on path-based ownership (/users/{userId}) and existence-based
+ * roles (/roles_admin/{userId}) to avoid slow and costly `get()` calls in rules.
+ * For documents within a user's data tree (e.g., a transaction), we enforce
+ * on create that an internal `userId` field matches the `userId` in the path,
+ * ensuring relational integrity without extra reads.
+ */
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ----------------------------------------------------------------------
+    // Helper Functions
+    // ----------------------------------------------------------------------
+
+    /**
+     * Checks if a user is authenticated.
+     */
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    /**
+     * Checks if the authenticated user's UID matches the provided userId.
+     * This is the foundation of the user-ownership model.
+     */
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    /**
+     * Checks if the authenticated user is an administrator.
+     * Admin status is granted if a document with the user's UID exists in the
+     * /roles_admin collection.
+     */
+    function isAdmin() {
+      return isSignedIn() && exists(/databases/$(database)/documents/roles_admin/$(request.auth.uid));
+    }
+
+    /**
+     * Checks for ownership on an existing document. Used for update/delete.
+     * Combines owner check with an existence check for robustness.
+     */
+    function isExistingOwner(userId) {
+      return isOwner(userId) && resource != null;
+    }
+
+    /**
+     * Validates that the `id` field of a new user document matches its path {userId}.
+     */
+    function hasCorrectIdOnCreate(userId) {
+      return request.resource.data.id == userId;
+    }
+
+    /**
+     * Enforces immutability of the `id` field on user document updates.
+     */
+    function isIdImmutable() {
+      return request.resource.data.id == resource.data.id;
+    }
+
+    /**
+     * Validates that the `userId` field of a new document matches its path {userId}.
+     */
+    function hasCorrectUserIdOnCreate(userId) {
+      return request.resource.data.userId == userId;
+    }
+
+    /**
+     * Enforces immutability of the `userId` field on document updates.
+     */
+    function isUserIdImmutable() {
+      return request.resource.data.userId == resource.data.userId;
+    }
+
+    /**
+     * Validates that the `authorId` field of a new document matches its path {userId}.
+     */
+    function hasCorrectAuthorIdOnCreate(userId) {
+      return request.resource.data.authorId == userId;
+    }
+
+    /**
+     * Enforces immutability of the `authorId` field on document updates.
+     */
+    function isAuthorIdImmutable() {
+      return request.resource.data.authorId == resource.data.authorId;
+    }
+
+    // ----------------------------------------------------------------------
+    // Collection Rules
+    // ----------------------------------------------------------------------
+
+    /**
+     * @description Manages user profile documents.
+     * @path /users/{userId}
+     * @allow (create) An authenticated user creating their own profile document.
+     * @deny (list) Any user attempting to list all user profiles.
+     * @principle Restricts access to a user's own data tree and enforces self-creation.
+     */
+    match /users/{userId} {
+      allow get: if isOwner(userId);
+      allow list: if false;
+      allow create: if isOwner(userId) && hasCorrectIdOnCreate(userId);
+      allow update: if isExistingOwner(userId) && isIdImmutable();
+      allow delete: if isExistingOwner(userId);
+
+      /**
+       * @description Manages news articles created by a specific user.
+       * @path /users/{userId}/newsArticles/{newsArticleId}
+       * @allow (create) The owner creating a news article in their own subcollection.
+       * @deny (update) A user trying to update another user's news article.
+       * @principle Enforces document ownership within a user's private subcollection.
+       */
+      match /newsArticles/{newsArticleId} {
+        allow get: if isOwner(userId);
+        allow list: if isOwner(userId);
+        allow create: if isOwner(userId) && hasCorrectAuthorIdOnCreate(userId);
+        allow update: if isExistingOwner(userId) && isAuthorIdImmutable();
+        allow delete: if isExistingOwner(userId);
+      }
+
+      /**
+       * @description Manages a user's private transaction history.
+       * @path /users/{userId}/transactions/{transactionId}
+       * @allow (get) The owner reading their own transaction document.
+       * @deny (list) Another user trying to list the owner's transactions.
+       * @principle Enforces document ownership within a user's private subcollection.
+       */
+      match /transactions/{transactionId} {
+        allow get: if isOwner(userId);
+        allow list: if isOwner(userId);
+        allow create: if isOwner(userId) && hasCorrectUserIdOnCreate(userId);
+        allow update: if isExistingOwner(userId) && isUserIdImmutable();
+        allow delete: if isExistingOwner(userId);
+      }
+
+      /**
+       * @description Manages a user's private investment recommendations.
+       * @path /users/{userId}/investmentRecommendations/{investmentRecommendationId}
+       * @allow (list) The owner listing their own investment recommendations.
+       * @deny (create) A user trying to create a recommendation for another user.
+       * @principle Enforces document ownership within a user's private subcollection.
+       */
+      match /investmentRecommendations/{investmentRecommendationId} {
+        allow get: if isOwner(userId);
+        allow list: if isOwner(userId);
+        allow create: if isOwner(userId) && hasCorrectUserIdOnCreate(userId);
+        allow update: if isExistingOwner(userId) && isUserIdImmutable();
+        allow delete: if isExistingOwner(userId);
+      }
+
+      /**
+       * @description Manages a user's private portfolio data.
+       * @path /users/{userId}/portfolios/{portfolioId}
+       * @allow (get, list, create, update, delete) The owner managing their own portfolio.
+       * @deny (any) Any other user trying to access the portfolio.
+       * @principle Enforces document ownership within a user's private subcollection.
+       */
+      match /portfolios/{portfolioId} {
+        allow get: if isOwner(userId);
+        allow list: if isOwner(userId);
+        allow create: if isOwner(userId) && hasCorrectUserIdOnCreate(userId);
+        allow update: if isExistingOwner(userId) && isUserIdImmutable();
+        allow delete: if isExistingOwner(userId);
+      }
+    }
+
+    /**
+     * @description Manages publicly readable share information.
+     * @path /shares/{shareId}
+     * @allow (get, list) Any user, authenticated or not, reading share data.
+     * @deny (create) A regular user attempting to create a new share listing.
+     * @principle Segregates public data, allowing global reads while restricting writes to admins.
+     */
+    match /shares/{shareId} {
+      allow get: if true;
+      allow list: if true;
+      allow create: if isAdmin();
+      allow update: if isAdmin() && resource != null;
+      allow delete: if isAdmin() && resource != null;
+    }
+
+    /**
+     * @description Manages administrator roles via document existence.
+     * @path /roles_admin/{userId}
+     * @allow (none) This collection is not intended to be written to or read by any client.
+     * @deny (any) All client-side requests are denied for maximum security.
+     * @principle Secures role-granting by making it a server-side only operation.
+     */
+    match /roles_admin/{userId} {
+      allow get: if false;
+      allow list: if false;
+      allow create: if false;
+      allow update: if false;
+      allow delete: if false;
+    }
+  }
+}
