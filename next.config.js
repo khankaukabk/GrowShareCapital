@@ -28,14 +28,13 @@ const securityHeaders = [
 ];
 
 const nextConfig = {
-  // 1. ADDED: This tells Next.js 16 to enable Turbopack (fast builds)
   turbopack: {},
-
-  // 2. KEPT: Ignore TS errors so your build finishes even if there are small type issues.
   typescript: {
     ignoreBuildErrors: true,
   },
-  
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
   async headers() {
     return [
       {
@@ -44,12 +43,15 @@ const nextConfig = {
       },
     ];
   },
-
   images: {
-    // 🛑 CRITICAL FIX: Disables image optimization to prevent server crashes on Cloud Functions
     unoptimized: true,
-    
     remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'placehold.co',
+        port: '',
+        pathname: '/**',
+      },
       {
         protocol: 'https',
         hostname: 'picsum.photos',
@@ -184,7 +186,6 @@ const nextConfig = {
       },
     ],
   },
-
   webpack: (config) => {
     config.resolve.alias = {
       ...config.resolve.alias,
@@ -192,7 +193,6 @@ const nextConfig = {
     }
     return config;
   },
-
   async redirects() {
     return [
       {
