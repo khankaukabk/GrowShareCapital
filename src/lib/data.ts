@@ -56,3 +56,16 @@ export const marketVolume = [
   { name: "Retail", value: 278, fill: "var(--color-chart-4)" },
   { name: "Energy", value: 189, fill: "var(--color-chart-5)" },
 ]
+
+export const leadership = [
+    { name: 'Eleanor Vance', role: 'Chief Executive Officer', image: findImage('leadership-1') },
+    { name: 'Marcus Thorne', role: 'Chief Financial Officer', image: findImage('leadership-2') },
+    { name: 'Isabella Rossi', role: 'Chief Operating Officer', image: findImage('leadership-3') },
+];
+
+export const partners = [
+    { name: 'Innovate Corp', logo: findImage('partner-logo-1') },
+    { name: 'Future Ventures', logo: findImage('partner-logo-2') },
+    { name: 'QuantumLeap', logo: findImage('partner-logo-3') },
+    { name: 'Strive Partners', logo: findImage('partner-logo-4') },
+];
