@@ -28,12 +28,11 @@ const securityHeaders = [
 ];
 
 const nextConfig = {
+  output: 'standalone',
   typescript: {
     ignoreBuildErrors: true,
   },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
+  // eslint config removed as it is no longer supported here in Next.js 16
   async headers() {
     return [
       {
