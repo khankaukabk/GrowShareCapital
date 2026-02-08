@@ -6,4 +6,4 @@ runConfig:
   concurrency: 80
 environmentVariables:
   - name: NEXT_PUBLIC_FIREBASE_PROJECT_ID
-    value: growshare-capital-4e100
+    value: studio-1704117883-ed97d
