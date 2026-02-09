@@ -1,3 +1,4 @@
+
 import type { Metadata, Viewport } from 'next';
 import { Playfair_Display, Montserrat, Pinyon_Script, Cinzel } from 'next/font/google';
 import './globals.css';
@@ -105,9 +106,6 @@ export default function RootLayout({
       className={`${playfairDisplay.variable} ${montserrat.variable} ${pinyonScript.variable} ${cinzel.variable} scroll-smooth`}
       data-scroll-behavior="smooth"
     >
-      {/* The error likely happened here. 
-         Make sure this tag opens with '<' and not just 'body' 
-      */}
       <body>
         <ClientProviders>
           <LayoutWrapper>

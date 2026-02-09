@@ -1,3 +1,4 @@
+
 import "server-only";
 import admin from "firebase-admin";
 import { getFirestore } from "firebase-admin/firestore";
@@ -20,22 +21,21 @@ if (!global.firebaseAdminApp) {
       const cleanKey = serviceAccountKey.replace(/\\n/g, '\n');
       const serviceAccount = JSON.parse(cleanKey);
       
+      // Removed hardcoded projectId. The ID is in the service account key.
       app = admin.initializeApp({
         credential: admin.credential.cert(serviceAccount),
-        projectId: "growshare-capital",
       }, "ADMIN_INSTANCE"); // Give it a unique name
       
       console.log("✅ [Server] Admin SDK initialized with Key.");
     } catch (e) {
       console.error("❌ [Server] Failed to parse Service Account Key:", e);
-      // Fallback to default to avoid crash
-      app = admin.initializeApp({ projectId: "growshare-capital" }, "ADMIN_INSTANCE");
+      // Fallback to default credentials
+      app = admin.initializeApp({}, "ADMIN_INSTANCE");
     }
   } else {
     // B. Use Default Credentials (Cloud / Production)
-    app = admin.initializeApp({
-      projectId: "growshare-capital",
-    }, "ADMIN_INSTANCE");
+    // No config needed; it picks up credentials from the environment.
+    app = admin.initializeApp({}, "ADMIN_INSTANCE");
     console.log("⚠️ [Server] Using Default Credentials (ADC).");
   }
   
