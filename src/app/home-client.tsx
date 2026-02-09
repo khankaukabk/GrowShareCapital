@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -86,17 +87,11 @@ function FormattedDate({ dateValue }: { dateValue: string | Date | Timestamp | n
 
 export default function HomeClientPage({ initialStories }: { initialStories: Story[] }) {
   const [recentStories, setRecentStories] = useState<Story[]>(initialStories);
-  const [loading, setLoading] = useState(initialStories.length === 0);
+  const [loading, setLoading] = useState(true);
   
   const { scrollYProgress } = useScroll();
 
   useEffect(() => {
-    if (initialStories.length > 0) {
-      setRecentStories(initialStories);
-      setLoading(false);
-      return;
-    }
-
     const fetchStories = async () => {
       setLoading(true);
       try {
@@ -117,14 +112,14 @@ export default function HomeClientPage({ initialStories }: { initialStories: Sto
         
         setRecentStories(storiesData);
       } catch (error) {
-        console.error("Client-side fetch failed:", error);
+        console.error("Client-side story fetch failed:", error);
       } finally {
         setLoading(false);
       }
     };
 
     fetchStories();
-  }, [initialStories]);
+  }, []);
 
   return (
     <div className="flex min-h-screen flex-col bg-[#F9F9F7] text-[#1a1a1a] font-sans selection:bg-[#1a1a1a] selection:text-[#F9F9F7]">
