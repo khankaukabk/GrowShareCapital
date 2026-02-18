@@ -6,57 +6,23 @@ runConfig:
   concurrency: 80
 
 environmentVariables:
-<<<<<<< HEAD
   # --- 1. Public Firebase Config ---
   - name: NEXT_PUBLIC_FIREBASE_API_KEY
-    value: AIzaSyCxxxthOm2HypFHeH5m6IgrhVBgmkpJzq0
-  - name: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
-    value: studio-1704117883-ed97d.firebaseapp.com
-  - name: NEXT_PUBLIC_FIREBASE_PROJECT_ID
-    value: studio-1704117883-ed97d
-  - name: NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
-    value: studio-1704117883-ed97d.firebasestorage.app
-=======
-  # --- 1. Public Firebase Config (Merged from your JS snippet) ---
-  - name: NEXT_PUBLIC_FIREBASE_API_KEY
-    value: "AIzaSyCxxxthOm2HypFHeH5m6IgrhVBgmkpJzq0" # ⚠️ Double check this is your REAL key (no 'xxx' placeholder)
+    value: "AIzaSyCxxxthOm2HypFHeH5m6IgrhVBgmkpJzq0"
   - name: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
     value: "studio-1704117883-ed97d.firebaseapp.com"
   - name: NEXT_PUBLIC_FIREBASE_PROJECT_ID
     value: "studio-1704117883-ed97d"
   - name: NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
     value: "studio-1704117883-ed97d.firebasestorage.app"
->>>>>>> 4ca446c (Fix deployment config and secure keys)
   - name: NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
     value: "252519631714"
   - name: NEXT_PUBLIC_FIREBASE_APP_ID
     value: "1:252519631714:web:9af0ee996a7e5b4acaba3b"
-<<<<<<< HEAD
-  
-  # --- 2. Public Keys & Email Settings ---
-  - name: NEXT_PUBLIC_RECAPTCHA_SITE_KEY
-    value: 6LcqKmUsAAAAAOqOjxcL7Bdz1Av5xQTk7hH-PL7B
-  # We are putting this here for now since you don't have a Secret for it yet.
-  - name: RECAPTCHA_SECRET_KEY
-    value: 6LcqKmUsAAAAABksF27qRRNf4DVJoGaqr1ZftAs-
-    
-  - name: EMAIL_HOST
-    value: smtp.gmail.com
-  - name: EMAIL_PORT
-    value: "587"
-  - name: EMAIL_USER
-    value: info@growsharecapital.com
-  - name: EMAIL_FROM
-    value: noreply@growsharecapital.com
-
-# --- 3. SECRETS (Pulled from Google Secret Manager) ---
-secrets:
-  # This pulls the value from the 'email-password' secret shown in your screenshot
-=======
   - name: NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
     value: "G-RDG7V9Z3K6"
 
-  # --- 2. Public Keys & Email Settings (Kept from your previous config) ---
+  # --- 2. Public Keys & Email Settings ---
   - name: NEXT_PUBLIC_RECAPTCHA_SITE_KEY
     value: "6LcqKmUsAAAAAOqOjxcL7Bdz1Av5xQTk7hH-PL7B"
   - name: RECAPTCHA_SECRET_KEY
@@ -73,6 +39,5 @@ secrets:
 
 # --- 3. SECRETS (Pulled from Google Secret Manager) ---
 secrets:
->>>>>>> 4ca446c (Fix deployment config and secure keys)
   - variable: EMAIL_PASS
     secret: email-password
