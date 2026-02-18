@@ -3,7 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --webpack",
+    "// COMMENT": "The dev script below now automatically loads your service account key!",
+    "dev": "export GOOGLE_APPLICATION_CREDENTIALS='./service-account.json' && next dev --webpack",
     "login": "gcloud auth login --update-adc --no-launch-browser",
     "build": "next build --webpack",
     "start": "next start",

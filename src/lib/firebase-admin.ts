@@ -1,9 +1,7 @@
-
 import "server-only";
-import admin from "firebase-admin";
+import * as admin from "firebase-admin"; 
 import { getFirestore } from "firebase-admin/firestore";
 
-// Define a global interface to prevent TypeScript errors/re-init on reload
 declare global {
   var firebaseAdminApp: admin.app.App | undefined;
 }
@@ -14,47 +12,44 @@ let app: admin.app.App;
 if (!global.firebaseAdminApp) {
   const serviceAccountKey = process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
 
-  if (serviceAccountKey) {
-    // A. Use provided Service Account (Local Dev)
-    try {
-      // Clean up formatting issues (common with copy-pasting keys)
+  try {
+    if (serviceAccountKey) {
+      // A. Use provided Service Account String (Deployment / Env Var)
       const cleanKey = serviceAccountKey.replace(/\\n/g, '\n');
       const serviceAccount = JSON.parse(cleanKey);
       
-      // Removed hardcoded projectId. The ID is in the service account key.
       app = admin.initializeApp({
         credential: admin.credential.cert(serviceAccount),
-      }, "ADMIN_INSTANCE"); // Give it a unique name
+        projectId: serviceAccount.project_id 
+      }, "ADMIN_INSTANCE");
       
-      console.log("✅ [Server] Admin SDK initialized with Key.");
-    } catch (e) {
-      console.error("❌ [Server] Failed to parse Service Account Key:", e);
-      // Fallback to default credentials
-      app = admin.initializeApp({}, "ADMIN_INSTANCE");
+      console.log("✅ [Server] Admin SDK initialized with Key Env Var.");
+    } else {
+      // B. Use Default Credentials (ADC) but FORCE the project ID
+      app = admin.initializeApp({
+        // 🛑 CRITICAL FIX: Explicitly set the Project ID to the correct one
+        projectId: "studio-1704117883-ed97d" 
+      }, "ADMIN_INSTANCE");
+
+      console.log("⚠️ [Server] Using Default Credentials (ADC) with explicit Project ID.");
     }
-  } else {
-    // B. Use Default Credentials (Cloud / Production)
-    // No config needed; it picks up credentials from the environment.
-    app = admin.initializeApp({}, "ADMIN_INSTANCE");
-    console.log("⚠️ [Server] Using Default Credentials (ADC).");
+  } catch (e) {
+    console.error("❌ [Server] Firebase Admin Init Error:", e);
+    // Fallback preventing crash
+    app = admin.initializeApp({ projectId: "studio-1704117883-ed97d" }, "ADMIN_INSTANCE_FALLBACK");
   }
-  
-  // Save to global so we don't re-init on refresh
+
   global.firebaseAdminApp = app;
 } else {
-  // Use existing app
   app = global.firebaseAdminApp;
 }
 
-// 2. Get Firestore Database
 const dbAdmin = getFirestore(app);
 
-// 3. Prevent "Already Initialized" Crashes during Build
 try {
-    dbAdmin.settings({ ignoreUndefinedProperties: true });
+   dbAdmin.settings({ ignoreUndefinedProperties: true });
 } catch (error) {
-    // If settings are already applied, ignore the error.
-    // This is common during Next.js builds which import files multiple times.
+   // Ignore if already set
 }
 
 export { dbAdmin };

@@ -1,10 +1,9 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
 import Image from "next/image";
 import Link from "next/link";
-import { motion, useScroll, useTransform, Variants } from "framer-motion"; 
+import { motion, useScroll, Variants } from "framer-motion"; 
 import { ArrowRight, Building2, Wheat, HeartPulse, ShieldCheck, Globe } from "lucide-react";
 import type { Story } from '@/app/news/stories-data'; 
 import { formatInTimeZone } from 'date-fns-tz';
@@ -23,7 +22,7 @@ const fadeUp: Variants = {
     opacity: 1, 
     y: 0, 
     transition: { 
-      duration: 1.2, 
+      duration: 1.0, 
       ease: [0.22, 1, 0.36, 1] 
     } 
   }
@@ -40,7 +39,7 @@ const staggerContainer: Variants = {
   }
 };
 
-// --- LUXURY CONTENT CONFIG ---
+// --- CONTENT CONFIG ---
 const featuredInvestments = [
   {
     sector: "Strategic Real Estate",
@@ -88,7 +87,6 @@ function FormattedDate({ dateValue }: { dateValue: string | Date | Timestamp | n
 export default function HomeClientPage({ initialStories }: { initialStories: Story[] }) {
   const [recentStories, setRecentStories] = useState<Story[]>(initialStories);
   const [loading, setLoading] = useState(true);
-  
   const { scrollYProgress } = useScroll();
 
   useEffect(() => {
@@ -109,7 +107,6 @@ export default function HomeClientPage({ initialStories }: { initialStories: Sto
                 date,
             } as Story;
         });
-        
         setRecentStories(storiesData);
       } catch (error) {
         console.error("Client-side story fetch failed:", error);
@@ -131,20 +128,14 @@ export default function HomeClientPage({ initialStories }: { initialStories: Sto
 
         {/* --- 1. HERO SECTION --- */}
         <section className="relative w-full min-h-[90vh] md:min-h-screen flex flex-col justify-center items-center px-4 md:px-6 overflow-hidden pt-20 pb-12">
-            
             <motion.div 
                 initial="hidden"
                 animate="show"
                 variants={staggerContainer}
                 className="relative z-10 w-full max-w-[1400px] mx-auto flex flex-col items-center text-center"
             >
-                {/* LOGO AREA - MASSIVE SIZE FIX */}
+                {/* LOGO AREA */}
                 <motion.div variants={fadeUp} className="mb-10 md:mb-16 w-full flex justify-center">
-                    {/* UPDATED SIZE LOGIC:
-                       - w-[95vw]: Take up 95% of screen width on mobile
-                       - h-[180px]: Give it plenty of vertical room to grow
-                       - md:w-[600px]: Cap it at a reasonable size on desktop
-                    */}
                     <div className="relative w-[95vw] h-[180px] md:w-[600px] md:h-[160px]">
                         <Image
                             src="https://firebasestorage.googleapis.com/v0/b/growshare-capital.firebasestorage.app/o/Logo%2FGrowshare%20Capital%20Transparent.png?alt=media&token=b53577e6-eb64-409d-aa7a-e9aa4fe01c49"
@@ -157,13 +148,11 @@ export default function HomeClientPage({ initialStories }: { initialStories: Sto
                     </div>
                 </motion.div>
 
-                {/* MAIN HEADLINE */}
                 <motion.h1 variants={fadeUp} className="text-4xl sm:text-6xl md:text-8xl lg:text-[6.5rem] font-serif leading-[1.1] md:leading-[0.95] tracking-tight mb-8 md:mb-12 text-[#1a1a1a]">
                     The Architect of <br />
                     <span className="italic font-light text-neutral-400">American Resilience.</span>
                 </motion.h1>
 
-                {/* SUBTEXT */}
                 <motion.div variants={fadeUp} className="flex flex-col items-center gap-6 md:gap-8 px-2 md:px-4">
                     <div className="h-[30px] md:h-[40px] w-[1px] bg-neutral-300"></div>
                     <p className="text-sm md:text-base font-light tracking-wide text-neutral-600 max-w-xl leading-relaxed">
@@ -173,7 +162,6 @@ export default function HomeClientPage({ initialStories }: { initialStories: Sto
                 </motion.div>
             </motion.div>
 
-            {/* Scroll Indicator */}
             <motion.div 
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -217,7 +205,8 @@ export default function HomeClientPage({ initialStories }: { initialStories: Sto
                                         alt={item.title}
                                         fill
                                         sizes="(max-width: 768px) 100vw, 33vw"
-                                        className="object-cover transition-transform duration-[1.5s] ease-out group-hover:scale-105 md:saturate-0 md:group-hover:saturate-100"
+                                        // ✅ FIXED: duration-1000 eliminates the warning
+                                        className="object-cover transition-transform duration-1000 ease-in-out group-hover:scale-105 md:saturate-0 md:group-hover:saturate-100"
                                     />
                                     <div className="absolute bottom-0 left-0 bg-white p-3 md:p-4 z-20">
                                         <item.icon className="w-5 h-5 text-neutral-900" strokeWidth={1.5} />
@@ -244,7 +233,6 @@ export default function HomeClientPage({ initialStories }: { initialStories: Sto
         {/* --- 3. PHILOSOPHY --- */}
         <section className="w-full bg-[#111] text-white py-24 md:py-48 overflow-hidden relative">
             <div className="max-w-[1400px] mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-16 md:gap-20 items-center relative z-10">
-                
                 <motion.div 
                     initial={{ opacity: 0, x: -30 }}
                     whileInView={{ opacity: 1, x: 0 }}
@@ -256,13 +244,10 @@ export default function HomeClientPage({ initialStories }: { initialStories: Sto
                         Beyond the <br/>
                         <span className="italic text-neutral-600">Quarter.</span>
                     </h3>
-                    
                     <div className="space-y-8 md:space-y-10 max-w-lg">
                         <p className="text-base md:text-lg font-light text-neutral-400 leading-relaxed">
                             We do not chase market volatility. We invest in permanence. Our strategy creates intergenerational wealth by securing the tangible infrastructure—farmland, housing, and healthcare—that communities rely upon for survival and growth.
                         </p>
-                        
-                        {/* TRUST METRICS */}
                         <div className="grid grid-cols-2 gap-8 md:gap-12 pt-8 md:pt-12 border-t border-white/10">
                             <div>
                                 <ShieldCheck className="w-6 h-6 md:w-8 md:h-8 text-neutral-600 mb-3 md:mb-4" strokeWidth={1} />
@@ -278,7 +263,6 @@ export default function HomeClientPage({ initialStories }: { initialStories: Sto
                     </div>
                 </motion.div>
 
-                {/* Image hides on small mobile or stacks below */}
                 <motion.div className="relative h-[400px] md:h-[600px] w-full lg:w-[90%] lg:ml-auto mt-8 lg:mt-0">
                       <Image
                         src="https://images.unsplash.com/photo-1556761175-5973dc0f32e7?q=80&w=1600"
@@ -333,7 +317,8 @@ export default function HomeClientPage({ initialStories }: { initialStories: Sto
                                         alt={safeTitle}
                                         fill
                                         sizes="(max-width: 768px) 100vw, 33vw"
-                                        className="object-cover transform group-hover:scale-105 transition-transform duration-[1.5s]"
+                                        // ✅ FIXED: duration-1000
+                                        className="object-cover transform group-hover:scale-105 transition-transform duration-1000"
                                     />
                                 </div>
 
@@ -353,7 +338,6 @@ export default function HomeClientPage({ initialStories }: { initialStories: Sto
             </div>
         </section>
 
-
         {/* --- 5. PARTNERS & LEADERSHIP --- */}
         <div className="bg-white">
             <OurPartners />
@@ -361,7 +345,6 @@ export default function HomeClientPage({ initialStories }: { initialStories: Sto
                 <LeadershipSection />
             </div>
         </div>
-
 
         {/* --- 6. FOOTER CTA --- */}
         <section className="py-32 md:py-40 bg-[#1a1a1a] text-white text-center">
@@ -378,7 +361,7 @@ export default function HomeClientPage({ initialStories }: { initialStories: Sto
                     </p>
                     <Link href="/contact" className="inline-block relative group overflow-hidden px-10 py-4 md:px-12 md:py-5 bg-white text-black text-[10px] md:text-[11px] tracking-[0.3em] uppercase font-bold">
                         <span className="relative z-10 group-hover:text-white transition-colors duration-500">Inquire Now</span>
-                        <div className="absolute inset-0 bg-neutral-800 transform translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out" />
+                        <div className="absolute inset-0 bg-neutral-800 transform translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-in-out" />
                     </Link>
                 </motion.div>
             </div>
